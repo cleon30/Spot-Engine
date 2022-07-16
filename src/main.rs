@@ -48,7 +48,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                 && transaction_record.contains_key(&transaction.tx) == false{ // the tx must be unique
                     transaction_record.insert(transaction.tx,transaction.to_owned()); // add the tx to the record
                     match account{ 
-                        None => users.insert(transaction.client,    // Case for new client!
+                        None => users.insert(transaction.client,    // Case for new client!(No account found)
                                 AccountBalance{
                                     available: amount,
                                     held: 0.0,              // Init with deposit funds
