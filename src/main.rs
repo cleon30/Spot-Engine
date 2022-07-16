@@ -115,34 +115,36 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         && dispute_tickets.contains(&transaction.tx)==false // None-repeated disputed
                         && x.r#type == "deposit"{   // Only has sense with deposit
 
-                            if let Some(y) = account{ // Account info to add $ to held
-                                if y.available>=transaction_quantity
-                                && y.locked == false{
-                                 // frozen account
+                            if let Some(spot_funds) = account{ // Account info to add $ to held
+                                if spot_funds.available>=transaction_quantity
+                                && spot_funds.locked == false{ // frozen account
+                                 
                                 dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: y.available - transaction_quantity,
-                                            held: y.held + transaction_quantity,
-                                            total: y.held + y.available ,           // Basically we are deleting funds from available
-                                            locked:y.locked,                        // to store them into held
-                                        });
-                                    } 
-                                }
+                                            available: spot_funds.available - transaction_quantity,
+                                            held: spot_funds.held + transaction_quantity,
+                                            total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
+                                            locked:spot_funds.locked,                        // to store them into held
+                                        }
+                                    );
+                                } 
+                            }
                         }else if x.client == transaction.client 
                         && dispute_tickets.contains(&transaction.tx)==false
                         && x.r#type == "withdrawal"{                            // disputes for withdrawals
-                            if let Some(y) = account{                           // Account info to add $ to held
-                                if y.locked == false{
+                            if let Some(spot_funds) = account{                           // Account info to add $ to held
+                                if spot_funds.locked == false{
                                  // frozen account
                                 dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: y.available,
-                                            held: y.held + transaction_quantity,
-                                            total: y.held + y.available + transaction_quantity,           // Basically we are deleting funds from available
-                                            locked:y.locked,                        // to store them into held
-                                        });
+                                            available: spot_funds.available,
+                                            held: spot_funds.held + transaction_quantity,
+                                            total: spot_funds.held + spot_funds.available + transaction_quantity,           // Basically we are deleting funds from available
+                                            locked:spot_funds.locked,                        // to store them into held
+                                        }
+                                    );
                                 } 
                             }
                         }
@@ -157,17 +159,17 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         if x.client == transaction.client               // the client that made the resolve must be the same with who made the transaction
                         && dispute_tickets.contains(&transaction.tx)==true // Disputed ticket is mandatory before resolve
                         && resolved_tickets.contains(&transaction.tx)==false{ // Resolve ticket Non-Repeated
-                            if let Some(y) = account{  
-                                if y.locked == false {                 // Account info to add $ to held
+                            if let Some(spot_funds) = account{  
+                                if spot_funds.locked == false {                 // Account info to add $ to held
                                     resolved_tickets.push(transaction.tx);  // Adding this resolve ticket to the history
-                                        users.insert(transaction.client,
-                                            AccountBalance{
-                                                available: y.available +transaction_quantity,
-                                                held: y.held - transaction_quantity,    //Reversing the dispute action(returning the funds to available)
-                                                total:y.total, 
-                                                locked:y.locked,
-                                            
-                                            });
+                                    users.insert(transaction.client,
+                                        AccountBalance{
+                                            available: spot_funds.available +transaction_quantity,
+                                            held: spot_funds.held - transaction_quantity,    //Reversing the dispute action(returning the funds to available)
+                                            total:spot_funds.total, 
+                                            locked:spot_funds.locked,
+                                        }
+                                    );
                                 }
                             }
                         }
