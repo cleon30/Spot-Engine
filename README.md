@@ -38,10 +38,10 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 
 ### Withdrawal Requirements
 
- * Transaction ID must be unique 
- * Transaction Amount > 0.0001 
- * *Available funds in User Account must be greater than Transaction Amount* 
- * *Client Account must not be frozen*
+- Transaction ID must be unique
+- Transaction Amount > 0.0001 
+- Available funds in User Account must be greater than Transaction Amount 
+- Client Account must not be frozen
 
 ### Dispute Requirements
 
@@ -62,3 +62,8 @@ When you are actually creating a dispute of a Withdrawal transaction, you will b
 
 ### Resolve
 
+When you are actually receiving a resolve transaction, is indicating that the dispute has succeed and the held funds must be transfer to available funds.
+ 
+ **In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.**
+
+you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
