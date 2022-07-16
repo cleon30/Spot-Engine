@@ -28,36 +28,37 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
   1. `git clone https://github.com/cleon30/Spot-Engine.git`
   2. `cd Spot-Engine`
   3. `cargo run -- account.csv < transactions.csv `
+## Logic 
 
-## Deposits Requirements
+### Deposits Requirements
 
 - Transaction ID must be unique
 - Transaction Amount > 0.0001
 - Client Account must not be frozen
 
-## Withdrawal Requirements
+### Withdrawal Requirements
 
 - Transaction ID must be unique
 - Transaction Amount > 0.0001 
 - Available funds in User Account must be greater than Transaction Amount 
 - Client Account must not be frozen
 
-## Dispute Requirements
+### Dispute Requirements
 
 - Transaction ID must be in the Transactions History that our Engine has made
 - The client from the Transactions History must be the same as the client who is creating a Dispute
 - Transaction Amount > 0.0001 
 - Client Account must not be frozen
 
-### Dispute Deposit
+#### Dispute Deposit
 
 - Available funds in User Account must be greater than Transaction Amount of dispute
     
 When you are actually creating a dispute of a Deposit transaction, your transactions amount dispute will decrease your available funds with that amount. Also, increasing the amount to held.
 
-### Dispute Withdrawal
+#### Dispute Withdrawal
 
 When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
 
-## Resolve
+### Resolve
 
