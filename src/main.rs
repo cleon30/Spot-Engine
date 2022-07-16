@@ -32,7 +32,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         .flexible(true)     //dimensional flexible 
                                         .from_reader(io::stdin()); 
 
-    let mut transaction_record = HashMap::<u32, Transaction>::new();  // hashmap of all the Deposits & Withdrawals from everyone
+    let mut transaction_history = HashMap::<u32, Transaction>::new();  // hashmap of all the Deposits & Withdrawals from everyone
     let mut dispute_tickets = Vec::new();     // Vector with the tx of the disputed tickets
     let mut resolved_tickets = Vec::new();     // Vector with the tx of the resolved tickets
     let mut chargeback_tickets = Vec::new();    // Vector with the tx of the chargeback tickets
@@ -43,10 +43,10 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
         match transaction.amount{ // Amount of the Transaction => Some(f32) is related with Deposit & withdrawal
                                     // None is related with Dispute,Resolve and Chargeback
             Some(amount) =>{                
-                if transaction.r#type == "deposit" // First case : Withdrawal as a transaction // 
+                if transaction.r#type == "deposit" // First case : Deposit as a transaction // 
                 && amount>=0.0001                   // having a minimum amount of money to send(to avoid negative/0 value) // 
-                && transaction_record.contains_key(&transaction.tx) == false{ // the tx must be unique
-                    transaction_record.insert(transaction.tx,transaction.to_owned()); // add the tx to the record
+                && transaction_history.contains_key(&transaction.tx) == false{ // the tx must be unique
+                    transaction_history.insert(transaction.tx,transaction.to_owned()); // add the tx to the history
                     match account{ 
                         None => users.insert(transaction.client,    // Case for new client!(No account found)
                                 AccountBalance{
@@ -78,11 +78,11 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                     // Second type of transaction: Withdrawal //
                     }else if transaction.r#type == "withdrawal"  
                     && amount>=0.0001
-                    && transaction_record.contains_key(&transaction.tx) == false{   // the tx must be unique
+                    && transaction_history.contains_key(&transaction.tx) == false{   // the tx must be unique
                         if let Some(x) = account{
                             if amount<=x.available// The transaction amount must be less that the user has
                             && x.locked == false{ //❄️❄️❄️❄️❄️
-                                transaction_record.insert(transaction.tx,transaction.to_owned()); // add the tx to the record
+                                transaction_history.insert(transaction.tx,transaction.to_owned()); // add the tx to the history
                                 users.insert(transaction.client,
                                     AccountBalance{
                                         available: x.available - amount,    // Withdraw == delete amount from total and available
@@ -108,7 +108,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                   // Third type of transaction: Dispute //
             if transaction.r#type == "dispute"
              {
-                let current_transaction_slot = &transaction_record.get(&transaction.tx);// Obtain the transaction info of the dispute tx
+                let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the dispute tx
                 if let Some(x) = current_transaction_slot{// Obtain the struct values, None case has no sense
                     if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
                         if x.client == transaction.client       // the client that made the dispute must be the same with who made the transaction
@@ -119,7 +119,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                 if y.available>=transaction_quantity
                                 && y.locked == false{
                                  // frozen account
-                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the record
+                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
                                             available: y.available - transaction_quantity,
@@ -135,7 +135,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                             if let Some(y) = account{                           // Account info to add $ to held
                                 if y.locked == false{
                                  // frozen account
-                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the record
+                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
                                             available: y.available,
@@ -153,7 +153,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
              // Fourth type of transaction: Resolve //
              }else if transaction.r#type == "resolve"
              {
-                let current_transaction_slot = &transaction_record.get(&transaction.tx);// Obtain the transaction info of the Resolve tx
+                let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the Resolve tx
                 if let Some(x) = current_transaction_slot{              // Obtain the struct values, None case has no sense
                     if let Some(transaction_quantity) = x.amount{       // transaction_quantity = amount $ from the tx we consulted
                         if x.client == transaction.client               // the client that made the resolve must be the same with who made the transaction
@@ -161,7 +161,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         && resolved_tickets.contains(&transaction.tx)==false{ // Resolve ticket Non-Repeated
                             if let Some(y) = account{  
                                 if y.locked == false {                 // Account info to add $ to held
-                                    resolved_tickets.push(transaction.tx);  // Adding this resolve ticket to the record
+                                    resolved_tickets.push(transaction.tx);  // Adding this resolve ticket to the history
                                         users.insert(transaction.client,
                                             AccountBalance{
                                                 available: y.available +transaction_quantity,
@@ -178,7 +178,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                 // Last Type of Transaction: chargeback //
              }else if transaction.r#type == "chargeback" 
              {
-                let current_transaction_slot = &transaction_record.get(&transaction.tx); // Obtain the transaction info of the chargeback tx
+                let current_transaction_slot = &transaction_history.get(&transaction.tx); // Obtain the transaction info of the chargeback tx
                 if let Some(x) = current_transaction_slot{  // Obtain the struct values, None case has no sense
                     if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
                     if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
@@ -188,7 +188,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         if let Some(y) = account{
                             if transaction_quantity<=y.held
                             && y.locked == false{ // account must not be frozen 
-                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the record
+                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
                                  users.insert(transaction.client,
                                      AccountBalance{
                                          available: y.available,
@@ -198,7 +198,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                      });
                             }else if y.locked == false      // account must not be frozen 
                             && transaction_quantity>y.held{          
-                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the record
+                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
                                 users.insert(transaction.client,
                                     AccountBalance{
                                         available: y.available ,
