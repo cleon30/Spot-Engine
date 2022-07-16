@@ -64,6 +64,5 @@ When you are actually creating a dispute of a Withdrawal transaction, you will b
 
 When you are actually receiving a resolve transaction, is indicating that the dispute has succeed and the held funds must be transfer to available funds.
  
- **In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.**
+ ***In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.***
 
-you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
