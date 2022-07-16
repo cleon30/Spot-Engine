@@ -185,25 +185,25 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
                         && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
                         && x.r#type == "deposit"{   // chargebacks are only available for deposit disputes
-                            if let Some(y) = account{
-                                if transaction_quantity<=y.held
-                                && y.locked == false{ // account must not be frozen 
+                            if let Some(spot_funds) = account{
+                                if transaction_quantity<=spot_funds.held
+                                && spot_funds.locked == false{ // account must not be frozen 
                                     chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: y.available,
-                                            held: y.held - transaction_quantity,
-                                            total:y.total - transaction_quantity, 
+                                            available: spot_funds.available,
+                                            held: spot_funds.held - transaction_quantity,
+                                            total:spot_funds.total - transaction_quantity, 
                                             locked:true,    
                                         });
-                                }else if y.locked == false      // account must not be frozen 
-                                && transaction_quantity>y.held{          
+                                }else if spot_funds.locked == false      // account must not be frozen 
+                                && transaction_quantity>spot_funds.held{          
                                     chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: y.available ,
-                                            held: y.held,
-                                            total:y.total, 
+                                            available: spot_funds.available ,
+                                            held: spot_funds.held,
+                                            total:spot_funds.total, 
                                             locked:true,            // frozen added
                                         }
                                     );
