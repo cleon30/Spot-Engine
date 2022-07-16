@@ -1,4 +1,12 @@
-<h1 align="center">Spot Engine</h1>
+<div align="center">
+  <h1>
+    <code>Spot Engine</code>
+  </h1>
+  <strong>Spot payment engine</sup>
+  
+  <sub>Built with 🦀 <a href="https://www.rust-lang.org" target="_blank">Rust</a> </sub>
+
+</div>
 
 ## Description
 
@@ -20,3 +28,6 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
   1. `git clone https://github.com/cleon30/Spot-Engine.git`
   2. `cd Spot-Engine`
   3. `cargo run -- account.csv < transactions.csv `
+
+## Deposits
+
