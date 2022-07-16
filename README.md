@@ -18,4 +18,5 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 
 ## Running
   1. `git clone https://github.com/cleon30/Spot-Engine.git`
-  2. `cd Spot-Engine && cargo run -- account.csv < transactions.csv`
+  2. `cd Spot-Engine`
+  3. `cargo run -- account.csv < transactions.csv `
