@@ -143,15 +143,13 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             total: y.held + y.available + transaction_quantity,           // Basically we are deleting funds from available
                                             locked:y.locked,                        // to store them into held
                                         });
-                                    } 
-                                }
-
+                                } 
+                            }
                         }
-                }
-                
+                    }
                 }
              // Fourth type of transaction: Resolve //
-             }else if transaction.r#type == "resolve"
+            }else if transaction.r#type == "resolve"
              {
                 let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the Resolve tx
                 if let Some(x) = current_transaction_slot{              // Obtain the struct values, None case has no sense
@@ -170,10 +168,10 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                                 locked:y.locked,
                                             
                                             });
-                                    }
                                 }
+                            }
                         }
-                }
+                    }
                 }
                 // Last Type of Transaction: chargeback //
              }else if transaction.r#type == "chargeback" 
@@ -181,42 +179,42 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                 let current_transaction_slot = &transaction_history.get(&transaction.tx); // Obtain the transaction info of the chargeback tx
                 if let Some(x) = current_transaction_slot{  // Obtain the struct values, None case has no sense
                     if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
-                    if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
-                    && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
-                    && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
-                    && x.r#type == "deposit"{   // chargebacks are only available for deposit disputes
-                        if let Some(y) = account{
-                            if transaction_quantity<=y.held
-                            && y.locked == false{ // account must not be frozen 
-                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
-                                 users.insert(transaction.client,
-                                     AccountBalance{
-                                         available: y.available,
-                                         held: y.held - transaction_quantity,
-                                         total:y.total - transaction_quantity, 
-                                         locked:true,    
-                                     });
-                            }else if y.locked == false      // account must not be frozen 
-                            && transaction_quantity>y.held{          
-                                chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
-                                users.insert(transaction.client,
-                                    AccountBalance{
-                                        available: y.available ,
-                                        held: y.held,
-                                        total:y.total, 
-                                        locked:true,            // frozen added
-                                    }
-                                );
+                        if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
+                        && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
+                        && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
+                        && x.r#type == "deposit"{   // chargebacks are only available for deposit disputes
+                            if let Some(y) = account{
+                                if transaction_quantity<=y.held
+                                && y.locked == false{ // account must not be frozen 
+                                    chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
+                                    users.insert(transaction.client,
+                                        AccountBalance{
+                                            available: y.available,
+                                            held: y.held - transaction_quantity,
+                                            total:y.total - transaction_quantity, 
+                                            locked:true,    
+                                        });
+                                }else if y.locked == false      // account must not be frozen 
+                                && transaction_quantity>y.held{          
+                                    chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
+                                    users.insert(transaction.client,
+                                        AccountBalance{
+                                            available: y.available ,
+                                            held: y.held,
+                                            total:y.total, 
+                                            locked:true,            // frozen added
+                                        }
+                                    );
+                                }
                             }
                         }
                     }
                 }
-                }
              } else{
                  ()
+                }
+            },
         }
-    },
-    }
     };
     // Write OUTPUT file ! // 
     let mut writer = Writer::from_path("accounts.csv")?; // the result will be saved as accounts.csv
