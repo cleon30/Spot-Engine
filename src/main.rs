@@ -26,13 +26,13 @@ struct AccountBalance {
 // Script of the Payment Engine //
 
 fn payments_engine() -> Result<(), Box<dyn Error>> {
-    let mut users = HashMap::<u16, AccountBalance>::new(); // hashmap of Client + Balance Account
+    let mut users = HashMap::<u16, AccountBalance>::new(); // hashmap of {Client : Balance Account}
     let mut read = ReaderBuilder::new()                     // input of std:in
                                         .trim(Trim::All)    //whitespaces
                                         .flexible(true)     //dimensional flexible 
                                         .from_reader(io::stdin()); 
 
-    let mut transaction_history = HashMap::<u32, Transaction>::new();  // hashmap of all the Deposits & Withdrawals from everyone
+    let mut transaction_history = HashMap::<u32, Transaction>::new();  // Hashmap of {Transaction ID: Transaction Info}
     let mut dispute_tickets = Vec::new();     // Vector with the tx of the disputed tickets
     let mut resolved_tickets = Vec::new();     // Vector with the tx of the resolved tickets
     let mut chargeback_tickets = Vec::new();    // Vector with the tx of the chargeback tickets
