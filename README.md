@@ -38,10 +38,10 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 
 ### Withdrawal Requirements
 
-* * Transaction ID must be unique 
-* * Transaction Amount > 0.0001 
-* *Available funds in User Account must be greater than Transaction Amount* 
-* *Client Account must not be frozen*
+ * Transaction ID must be unique 
+ * Transaction Amount > 0.0001 
+ * *Available funds in User Account must be greater than Transaction Amount* 
+ * *Client Account must not be frozen*
 
 ### Dispute Requirements
 
