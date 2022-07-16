@@ -1,5 +1,5 @@
 <h1 align="center">Spot Engine</h1>
-Given a .csv with transactions from different users of a platform, this Spot-Engine program updates User Accounts, handles disputes and chargebacks and output the state of the clients accounts as .csv . 
+
 ## Features
 1. [x] Deposits
 2. [x] Withdrawals
@@ -10,6 +10,9 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 5. [x] Chargebacks
     1. [x] Deposit chargebacks
 
+## Description
+
+Given a .csv with transactions from different users of a platform, this Spot-Engine program updates User Accounts, handles disputes and chargebacks and output the state of the clients accounts as .csv 
 
 
 ## Running
