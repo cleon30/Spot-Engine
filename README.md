@@ -11,5 +11,5 @@
     1. [x] Deposit chargebacks
 
 ## Running
-  1. `git Spot_Engine `
-  2. `cd Spot_Engine && cargo run -- account.csv < transactions.csv`
+  1. `git clone https://github.com/cleon30/Spot-Engine.git`
+  2. `cd Spot-Engine && cargo run -- account.csv < transactions.csv`
