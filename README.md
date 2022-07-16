@@ -19,6 +19,8 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
     1. [x] Deposit disputes
     2. [X] Withdrawal disputes
 4. [x] Resolutions
+    1. [x] Deposit resolutions
+    2. [X] Withdrawal resolutions
 5. [x] Chargebacks
     1. [x] Deposit chargebacks
 
