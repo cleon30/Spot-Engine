@@ -65,7 +65,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         total: spot_funds.total , 
                                         locked: spot_funds.locked,
                                     })
-                            }else{
+                            }else{              // Regular users, normal case 
                                 
                                 users.insert(transaction.client,
                                     AccountBalance{
@@ -211,7 +211,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             held: spot_funds.held - transaction_quantity,
                                             total:spot_funds.total - transaction_quantity, 
                                             locked:true,    
-                                        });
+                                        }
+                                    );
                                 }else if spot_funds.locked == false      // account must not be frozen 
                                 && transaction_quantity>spot_funds.held{          
                                     chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
