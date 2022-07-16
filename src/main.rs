@@ -54,7 +54,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     held: 0.0,              // Init with deposit funds
                                     total: amount, 
                                     locked: false,
-                                }),
+                                }
+                            ),
                         Some(spot_funds) =>{
                             if spot_funds.locked {      // Frozen Account ❄️
                                 println!("\nAccount {:?} has been frozen, deposits are currently not available.", transaction.client);              // Default Account
@@ -64,7 +65,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         held: spot_funds.held,
                                         total: spot_funds.total , 
                                         locked: spot_funds.locked,
-                                    })
+                                    }
+                                )
                             }else{              // Regular users, normal case 
                                 
                                 users.insert(transaction.client,
@@ -73,7 +75,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         held: spot_funds.held,
                                         total: spot_funds.total + amount, 
                                         locked: spot_funds.locked,
-                                    })
+                                    }
+                                )
                             }
                         },
                     };
@@ -91,7 +94,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         held: spot_funds.held,
                                         total:spot_funds.total - amount, 
                                         locked:spot_funds.locked,
-                                    })
+                                    }
+                                )
                             }else{
                                 println!("\nAccount {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
                                 users.insert(transaction.client,
@@ -101,7 +105,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     total: spot_funds.total, 
                                     locked:spot_funds.locked,
                             
-                                    })
+                                    }
+                                )
                             };
                         } 
                    
