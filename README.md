@@ -45,10 +45,10 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 
 ### **Dispute Requirements**
 
-- Transaction ID must be in the Transactions History that our Engine has made
-- The client from the Transactions History must be the same as the client who is creating a Dispute
-- Transaction Amount > 0.0001 
-- Client Account must not be frozen
+- Transaction ID must be in the Transactions History that our Engine has made.
+- Only 1 dispute per tx.
+- The client from the Transactions History must be the same as the client who is creating a Dispute.
+- Client Account must not be frozen.
 
 #### ***Dispute Deposit***
 
@@ -62,7 +62,26 @@ When you are actually creating a dispute of a Withdrawal transaction, you will b
 
 ### **Resolve**
 
+- Transaction ID must be in the Transactions History that our Engine has made.
+- Dispute of Transaction ID must be in the Dispute Tickets that our Engine has made.
+- Only 1 Resolve for Dispute ticket.
+- The client from the Transactions History must be the same as the client for who is resolving.
+- Client Account must not be frozen
+
 When you are actually receiving a resolve transaction, is indicating that the dispute has succeed and the held funds must be transfer to available funds.
  
  ***In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.***
+
+### **Chargeback**
+
+- Transaction ID must be in the Transactions History that our Engine has made.
+- Dispute of Transaction ID must be in the Dispute Tickets that our Engine has made.
+- The client from the Transactions History must be the same as the client who is chargebacking.
+- Client Account must not be frozen.
+- Type of transaction in the tx History must be Deposit. 
+
+When you are receiving a chargeback, it means that the funds on held and total must be decreased by the quantity of the deposit that the client user has made. The account will be instantly frozen.
+ 
+
+
 
