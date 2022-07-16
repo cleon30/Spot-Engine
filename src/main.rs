@@ -57,6 +57,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                 }),
                         Some(spot_funds) =>{
                             if spot_funds.locked {      // Frozen Account ❄️
+                                println!("\nAccount {:?} has been frozen, deposits are currently not available.", transaction.client);              // Default Account
                                 users.insert(transaction.client,
                                     AccountBalance{
                                         available: spot_funds.available ,
@@ -64,7 +65,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         total: spot_funds.total , 
                                         locked: spot_funds.locked,
                                     })
-                            }else{              // Default Account
+                            }else{
+                                
                                 users.insert(transaction.client,
                                     AccountBalance{
                                         available: spot_funds.available + amount ,
@@ -76,7 +78,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         },
                     };
                     // Second type of transaction: Withdrawal //
-                    }else if transaction.r#type == "withdrawal"  
+                }else if transaction.r#type == "withdrawal"  
                     && amount>=0.0001
                     && transaction_history.contains_key(&transaction.tx) == false{   // the tx must be unique
                         if let Some(spot_funds) = account{
@@ -90,20 +92,22 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         total:spot_funds.total - amount, 
                                         locked:spot_funds.locked,
                                     })
-                                }else{
-                                    users.insert(transaction.client,
-                                        AccountBalance{
-                                            available: spot_funds.available,
-                                            held: spot_funds.held,
-                                            total: spot_funds.total, 
-                                            locked:spot_funds.locked,
+                            }else{
+                                println!("\nAccount {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
+                                users.insert(transaction.client,
+                                    AccountBalance{
+                                    available: spot_funds.available,
+                                    held: spot_funds.held,
+                                    total: spot_funds.total, 
+                                    locked:spot_funds.locked,
                             
-                                        })
-                                };
-                            } 
+                                    })
+                            };
+                        } 
                    
-                        };
-                    }
+                        
+                    };
+                }
              None =>{  // None is related with Dispute, Resolve and Chargeback
                   // Third type of transaction: Dispute //
             if transaction.r#type == "dispute"
@@ -128,6 +132,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             locked:spot_funds.locked,                        // to store them into held
                                         }
                                     );
+                                }else{
+                                    println!("\nDisputed from client {:?}  does not proceed. \n Status: \n Account Frozen = {:?} | Amount of transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
                                 } 
                             }
                         }else if x.client == transaction.client 
@@ -147,8 +153,12 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     );
                                 } 
                             }
+                        }else{
+                            println!("\nDisputed from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket already exists? = {:?} | Transaction Type : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), x.r#type);
                         }
                     }
+                }else{
+                    println!("\nSeems like your tx {:?} does not exist in tx history", transaction.tx);
                 }
              // Fourth type of transaction: Resolve //
             }else if transaction.r#type == "resolve"
@@ -170,10 +180,16 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             locked:spot_funds.locked,
                                         }
                                     );
+                                }else{
+                                    println!("\nAccount {} is frozen, resolve is not available", x.client);
                                 }
                             }
+                        }else{
+                            println!("\nResolve from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket previously made? = {:?} | Resolved ticked already exist? : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), resolved_tickets.contains(&transaction.tx));
                         }
                     }
+                }else{
+                    println!("\nSeems like your tx {:?} does not exist in tx history", transaction.tx);
                 }
                 // Last Type of Transaction: chargeback //
              }else if transaction.r#type == "chargeback" 
@@ -209,11 +225,17 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     );
                                 }
                             }
+                        }else{
+                            println!("\nRequirements not matched for proceding chargeback:{:?}", transaction.tx);
                         }
+                    }else{
+                        println!("\nNone value found for transaction consulted:{:?}", x.amount);
                     }
+                }else{
+                    println!("\nTransaction {:?} has not found", transaction.tx);
                 }
              } else{
-                 ()
+                println!("\nTransaction Instruction {:?} does not exist", transaction.r#type);
                 }
             },
         }
@@ -221,7 +243,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
     // Write OUTPUT file ! // 
     let mut writer = Writer::from_path("accounts.csv")?; // the result will be saved as accounts.csv
     writer.write_record(&["client", "available", "held", "total", "locked"])?;
-    for (user, AccountBalance) in users {
+    for (user, AccountBalance) in users { 
         writer.write_byte_record(&ByteRecord::from(
             vec![
             user.to_string(),
