@@ -55,22 +55,22 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     total: amount, 
                                     locked: false,
                                 }),
-                        Some(x) =>{
-                            if x.locked {      // Frozen Account ❄️
+                        Some(spot_funds) =>{
+                            if spot_funds.locked {      // Frozen Account ❄️
                                 users.insert(transaction.client,
                                     AccountBalance{
-                                        available: x.available ,
-                                        held: x.held,
-                                        total: x.total , 
-                                        locked: x.locked,
+                                        available: spot_funds.available ,
+                                        held: spot_funds.held,
+                                        total: spot_funds.total , 
+                                        locked: spot_funds.locked,
                                     })
                             }else{              // Default Account
                                 users.insert(transaction.client,
                                     AccountBalance{
-                                        available: x.available + amount ,
-                                        held: x.held,
-                                        total: x.total + amount, 
-                                        locked: x.locked,
+                                        available: spot_funds.available + amount ,
+                                        held: spot_funds.held,
+                                        total: spot_funds.total + amount, 
+                                        locked: spot_funds.locked,
                                     })
                             }
                         },
@@ -79,24 +79,24 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                     }else if transaction.r#type == "withdrawal"  
                     && amount>=0.0001
                     && transaction_history.contains_key(&transaction.tx) == false{   // the tx must be unique
-                        if let Some(x) = account{
-                            if amount<=x.available// The transaction amount must be less that the user has
-                            && x.locked == false{ //❄️❄️❄️❄️❄️
+                        if let Some(spot_funds) = account{
+                            if amount<=spot_funds.available// The transaction amount must be less that the user has
+                            && spot_funds.locked == false{ //❄️❄️❄️❄️❄️
                                 transaction_history.insert(transaction.tx,transaction.to_owned()); // add the tx to the history
                                 users.insert(transaction.client,
                                     AccountBalance{
-                                        available: x.available - amount,    // Withdraw == delete amount from total and available
-                                        held: x.held,
-                                        total:x.total - amount, 
-                                        locked:x.locked,
+                                        available: spot_funds.available - amount,    // Withdraw == delete amount from total and available
+                                        held: spot_funds.held,
+                                        total:spot_funds.total - amount, 
+                                        locked:spot_funds.locked,
                                     })
                                 }else{
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: x.available,
-                                            held: x.held,
-                                            total: x.total, 
-                                            locked:x.locked,
+                                            available: spot_funds.available,
+                                            held: spot_funds.held,
+                                            total: spot_funds.total, 
+                                            locked:spot_funds.locked,
                             
                                         })
                                 };
@@ -235,10 +235,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
 
 fn main() {
     if let Err(err) = payments_engine(){
-
         eprintln!("{}", err);
         process::exit(1);
     }
-    // payments_engine();
 }
 
