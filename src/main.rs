@@ -115,111 +115,111 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         
                     };
                 }
-             None =>{  // None is related with Dispute, Resolve and Chargeback
+            None =>{  // None is related with Dispute, Resolve and Chargeback
                   // Third type of transaction: Dispute //
-            if transaction.r#type == "dispute"
-             {
-                let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the dispute tx
-                if let Some(x) = current_transaction_slot{// Obtain the struct values, None case has no sense
-                    if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
-                        if x.client == transaction.client       // the client that made the dispute must be the same with who made the transaction
-                        && dispute_tickets.contains(&transaction.tx)==false // None-repeated disputed
-                        && (x.r#type == "deposit" || x.r#type == "withdrawal") {   // Only has sense with deposit & withdrawal
+                if transaction.r#type == "dispute"
+                {
+                    let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the dispute tx
+                    if let Some(x) = current_transaction_slot{// Obtain the struct values, None case has no sense
+                        if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
+                            if x.client == transaction.client       // the client that made the dispute must be the same with who made the transaction
+                            && dispute_tickets.contains(&transaction.tx)==false // None-repeated disputed
+                            && (x.r#type == "deposit" || x.r#type == "withdrawal") {   // Only has sense with deposit & withdrawal
 
-                            if let Some(spot_funds) = account{ // Account info to add $ to held
-                                if spot_funds.available>=transaction_quantity
-                                && spot_funds.locked == false{ // frozen account
-                                 
-                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
-                                users.insert(transaction.client,
-                                    AccountBalance{
-                                        available: spot_funds.available - transaction_quantity,
-                                        held: spot_funds.held + transaction_quantity,
-                                        total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
-                                        locked: spot_funds.locked,                        // to store them into held
-                                    }
-                                );
-                                }else{
-                                    println!("\n✘ Disputed from client {:?}  does not proceed. \n  - Status: Account Frozen = {:?} | Amount of Disputed transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
-                                } 
-                            }
-                        }else{
-                            println!("\n✘ Disputed from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket already exists? = {:?} | Transaction Type : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), x.r#type);
-                        }
-                    }
-                }else{
-                    println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
-                }
-             // Fourth type of transaction: Resolve //
-            }else if transaction.r#type == "resolve"
-             {
-                let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the Resolve tx
-                if let Some(x) = current_transaction_slot{              // Obtain the struct values, None case has no sense
-                    if let Some(transaction_quantity) = x.amount{       // transaction_quantity = amount $ from the tx we consulted
-                        if x.client == transaction.client               // the client that made the resolve must be the same with who made the transaction
-                        && dispute_tickets.contains(&transaction.tx)==true // Disputed ticket is mandatory before resolve
-                        && resolved_tickets.contains(&transaction.tx)==false{ // Resolve ticket Non-Repeated
-                            if let Some(spot_funds) = account{  
-                                if spot_funds.locked == false {                 // Account info to add $ to held
-                                    resolved_tickets.push(transaction.tx);  // Adding this resolve ticket to the history
+                                if let Some(spot_funds) = account{ // Account info to add $ to held
+                                    if spot_funds.available>=transaction_quantity
+                                    && spot_funds.locked == false{ // frozen account
+                                    
+                                    dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
                                     users.insert(transaction.client,
                                         AccountBalance{
-                                            available: spot_funds.available +transaction_quantity,
-                                            held: spot_funds.held - transaction_quantity,    //Reversing the dispute action(returning the funds to available)
-                                            total: spot_funds.total, 
-                                            locked: spot_funds.locked,
+                                            available: spot_funds.available - transaction_quantity,
+                                            held: spot_funds.held + transaction_quantity,
+                                            total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
+                                            locked: spot_funds.locked,                        // to store them into held
                                         }
                                     );
-                                }else{
-                                    println!("\n✘ Account {} is frozen, resolve is not available", x.client);
+                                    }else{
+                                        println!("\n✘ Disputed from client {:?}  does not proceed. \n  - Status: Account Frozen = {:?} | Amount of Disputed transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
+                                    } 
                                 }
+                            }else{
+                                println!("\n✘ Disputed from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket already exists? = {:?} | Transaction Type : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), x.r#type);
                             }
-                        }else{
-                            println!("\n✘ Resolve from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket previously made? = {:?} | Resolved ticked already exist? : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), resolved_tickets.contains(&transaction.tx));
-                        }
-                    }
-                }else{
-                    println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
-                }
-                // Last Type of Transaction: chargeback //
-             }else if transaction.r#type == "chargeback" 
-             {
-                let current_transaction_slot = &transaction_history.get(&transaction.tx); // Obtain the transaction info of the chargeback tx
-                if let Some(x) = current_transaction_slot{  // Obtain the struct values, None case has no sense
-                    if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
-                        if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
-                        && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
-                        && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
-                        {   // chargebacks are only available for deposit disputes
-                            if let Some(spot_funds) = account{
-                                if transaction_quantity<=spot_funds.held
-                                && spot_funds.locked == false{ // account must not be frozen 
-                                    chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
-                                    users.insert(transaction.client,
-                                        AccountBalance{
-                                            available: spot_funds.available,
-                                            held: spot_funds.held - transaction_quantity,
-                                            total: spot_funds.total - transaction_quantity, 
-                                            locked: true,    
-                                        }
-                                    );
-                                }else{
-                                    println!("\n✘ Your Account is frozen({:?}) or your Transaction Quantity({:?}) is greater than your Held funds({:?})", spot_funds.locked, transaction_quantity, spot_funds.held);
-                                }
-                            }
-                        }else{
-                            println!("\n✘ Requirements not matched for proceding chargeback:{:?}", transaction.tx);
                         }
                     }else{
-                        println!("\n✘ None value found for transaction consulted:{:?}", x.amount);
+                        println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
                     }
-                }else{
-                    println!("\n✘ Transaction {:?} has not found", transaction.tx);
-                }
-             } else{
-                println!("\n✘ Transaction Instruction {:?} does not exist", transaction.r#type);
-                }
-            },
+                // Fourth type of transaction: Resolve //
+                }else if transaction.r#type == "resolve"
+                {
+                    let current_transaction_slot = &transaction_history.get(&transaction.tx);// Obtain the transaction info of the Resolve tx
+                    if let Some(x) = current_transaction_slot{              // Obtain the struct values, None case has no sense
+                        if let Some(transaction_quantity) = x.amount{       // transaction_quantity = amount $ from the tx we consulted
+                            if x.client == transaction.client               // the client that made the resolve must be the same with who made the transaction
+                            && dispute_tickets.contains(&transaction.tx)==true // Disputed ticket is mandatory before resolve
+                            && resolved_tickets.contains(&transaction.tx)==false{ // Resolve ticket Non-Repeated
+                                if let Some(spot_funds) = account{  
+                                    if spot_funds.locked == false {                 // Account info to add $ to held
+                                        resolved_tickets.push(transaction.tx);  // Adding this resolve ticket to the history
+                                        users.insert(transaction.client,
+                                            AccountBalance{
+                                                available: spot_funds.available +transaction_quantity,
+                                                held: spot_funds.held - transaction_quantity,    //Reversing the dispute action(returning the funds to available)
+                                                total: spot_funds.total, 
+                                                locked: spot_funds.locked,
+                                            }
+                                        );
+                                    }else{
+                                        println!("\n✘ Account {} is frozen, resolve is not available", x.client);
+                                    }
+                                }
+                            }else{
+                                println!("\n✘ Resolve from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket previously made? = {:?} | Resolved ticked already exist? : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), resolved_tickets.contains(&transaction.tx));
+                            }
+                        }
+                    }else{
+                        println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
+                    }
+                    // Last Type of Transaction: chargeback //
+                }else if transaction.r#type == "chargeback" 
+                {
+                    let current_transaction_slot = &transaction_history.get(&transaction.tx); // Obtain the transaction info of the chargeback tx
+                    if let Some(x) = current_transaction_slot{  // Obtain the struct values, None case has no sense
+                        if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
+                            if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
+                            && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
+                            && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
+                            {   // chargebacks are only available for deposit disputes
+                                if let Some(spot_funds) = account{
+                                    if transaction_quantity<=spot_funds.held
+                                    && spot_funds.locked == false{ // account must not be frozen 
+                                        chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
+                                        users.insert(transaction.client,
+                                            AccountBalance{
+                                                available: spot_funds.available,
+                                                held: spot_funds.held - transaction_quantity,
+                                                total: spot_funds.total - transaction_quantity, 
+                                                locked: true,    
+                                            }
+                                        );
+                                    }else{
+                                        println!("\n✘ Your Account is frozen({:?}) or your Transaction Quantity({:?}) is greater than your Held funds({:?})", spot_funds.locked, transaction_quantity, spot_funds.held);
+                                    }
+                                }
+                            }else{
+                                println!("\n✘ Requirements not matched for proceding chargeback:{:?}", transaction.tx);
+                            }
+                        }else{
+                            println!("\n✘ None value found for transaction consulted:{:?}", x.amount);
+                        }
+                    }else{
+                        println!("\n✘ Transaction {:?} has not found", transaction.tx);
+                    }
+                } else{
+                    println!("\n✘ Transaction Instruction {:?} does not exist", transaction.r#type);
+                    }
+                },
         }
     };
     // Write OUTPUT file ! // 
@@ -245,4 +245,3 @@ fn main() {
         process::exit(1);
     }
 }
-
