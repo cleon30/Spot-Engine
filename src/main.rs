@@ -190,7 +190,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
                         && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
                         && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
-                        && (x.r#type == "deposit" || x.r#type == "withdrawal"){   // chargebacks are only available for deposit disputes
+                        {   // chargebacks are only available for deposit disputes
                             if let Some(spot_funds) = account{
                                 if transaction_quantity<=spot_funds.held
                                 && spot_funds.locked == false{ // account must not be frozen 
@@ -203,17 +203,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             locked: true,    
                                         }
                                     );
-                                }else if spot_funds.locked == false      // account must not be frozen 
-                                && transaction_quantity>spot_funds.held{          
-                                    chargeback_tickets.push(transaction.tx); // Adding chargeback ticket to the history
-                                    users.insert(transaction.client,
-                                        AccountBalance{
-                                            available: spot_funds.available ,
-                                            held: spot_funds.held,
-                                            total: spot_funds.total, 
-                                            locked: true,            // frozen added
-                                        }
-                                    );
+                                }else{
+                                    println!("\n✘ Your Account is frozen({:?}) or your Transaction Quantity({:?}) is greater than your Held funds({:?})", spot_funds.locked, transaction_quantity, spot_funds.held);
                                 }
                             }
                         }else{
