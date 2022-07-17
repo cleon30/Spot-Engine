@@ -126,7 +126,7 @@ When you are actually receiving a resolve transaction, is indicating that the di
 
 ```bash
 AccountBalance{
-                available: spot_funds.available +transaction_quantity,
+                available: spot_funds.available + transaction_quantity,
                 held: spot_funds.held - transaction_quantity,    
                 total: spot_funds.total, 
                 locked: spot_funds.locked,
@@ -152,7 +152,7 @@ AccountBalance{
                 held: spot_funds.held - transaction_quantity,
                 total: spot_funds.total - transaction_quantity, 
                 locked: true,    
-                                        }
+                }
 ```
  
 
