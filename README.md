@@ -12,6 +12,8 @@
 
 Given a .csv with transactions from different users of a platform, this Spot-Engine program updates User Accounts, handles disputes and chargebacks and output the state of the clients accounts as .csv 
 
+Output file will be account.csv as default, in case you want other name change the code!
+
 ## Features
 1. [x] Deposits
 2. [x] Withdrawals
