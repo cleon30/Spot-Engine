@@ -64,7 +64,9 @@ When you are actually creating a dispute of a Withdrawal transaction, you will b
 
 In this case I had the dilemma working with Dispute Withdrawal, because the idea of disputing a withdrawal is useful to prevent wrong withdrawals. So you make a dispute, you get the funds held but the funds are not available if resolve does not proceed.
 
-### **Resolve Requirements**
+### **Resolve**
+
+Requirements:
 
 - Transaction ID must be in the Transactions History that our Engine has made.
 - Dispute of Transaction ID must be in the Dispute Tickets that our Engine has made.
