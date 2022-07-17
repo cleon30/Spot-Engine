@@ -84,37 +84,37 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                     };
                     // Second type of transaction: Withdrawal //
                 }else if transaction.r#type == "withdrawal"  
-                    && amount>=0.0001
-                    && transaction_history.contains_key(&transaction.tx) == false{   // the tx must be unique
-                        if let Some(spot_funds) = account{
-                            if amount<=spot_funds.available// The transaction amount must be less that the user has
-                            && spot_funds.locked == false{ //❄️❄️❄️❄️❄️
-                                transaction_history.insert(transaction.tx,transaction.to_owned()); // add the tx to the history
-                                users.insert(transaction.client,
-                                    AccountBalance{
-                                        available: spot_funds.available - amount,    // Withdraw == delete amount from total and available
-                                        held: spot_funds.held,
-                                        total:spot_funds.total - amount, 
-                                        locked:spot_funds.locked,
-                                    }
-                                )
-                            }else{
-                                println!("\n✘ Account {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
-                                users.insert(transaction.client,
-                                    AccountBalance{
-                                    available: spot_funds.available,
+                && amount>=0.0001
+                && transaction_history.contains_key(&transaction.tx) == false{   // the tx must be unique
+                    if let Some(spot_funds) = account{
+                        if amount<=spot_funds.available// The transaction amount must be less that the user has
+                        && spot_funds.locked == false{ //❄️❄️❄️❄️❄️
+                            transaction_history.insert(transaction.tx,transaction.to_owned()); // add the tx to the history
+                            users.insert(transaction.client,
+                                AccountBalance{
+                                    available: spot_funds.available - amount,    // Withdraw == delete amount from total and available
                                     held: spot_funds.held,
-                                    total: spot_funds.total, 
+                                    total:spot_funds.total - amount, 
                                     locked:spot_funds.locked,
-                            
-                                    }
-                                )
-                            };
-                        } 
-                   
+                                }
+                            )
+                        }else{
+                            println!("\n✘ Account {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
+                            users.insert(transaction.client,
+                                AccountBalance{
+                                available: spot_funds.available,
+                                held: spot_funds.held,
+                                total: spot_funds.total, 
+                                locked:spot_funds.locked,
                         
-                    };
-                }
+                                }
+                            )
+                        };
+                    } 
+            
+                    
+                };
+            }
             None =>{  // None is related with Dispute, Resolve and Chargeback
                   // Third type of transaction: Dispute //
                 if transaction.r#type == "dispute"
