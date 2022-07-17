@@ -62,9 +62,8 @@ When you are actually creating a dispute of a Deposit transaction, your transact
 
 When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
 
-```diff
-+ In this case I had the dilemma working with Dispute Withdrawal, because the idea of disputing a withdrawal is useful to prevent wrong withdrawals. So you make a dispute, you get the funds held but the funds are not available if resolve does not proceed.
-```
+In this case I had the dilemma working with Dispute Withdrawal, because the idea of disputing a withdrawal is useful to prevent wrong withdrawals. So you make a dispute, you get the funds held but the funds are not available if resolve does not proceed.
+
 ### **Resolve Requirements**
 
 - Transaction ID must be in the Transactions History that our Engine has made.
@@ -75,9 +74,8 @@ When you are actually creating a dispute of a Withdrawal transaction, you will b
 
 When you are actually receiving a resolve transaction, is indicating that the dispute has succeed and the held funds must be transfer to available funds.
  
- ```diff
-+In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.
-```
+ In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.
+
 
 ### **Chargeback Requirements**
 
