@@ -41,6 +41,15 @@ Requirements:
 - Transaction Amount > 0.0001
 - Client Account must not be frozen
 
+```bash
+AccountBalance{
+                available: spot_funds.available + amount ,
+                held: spot_funds.held,
+                total: spot_funds.total + amount, 
+                locked: spot_funds.locked,
+                }
+```
+
 ### **Withdrawal**
 
 Requirements:
