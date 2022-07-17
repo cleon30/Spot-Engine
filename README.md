@@ -99,6 +99,10 @@ AccountBalance{
 
 ### ***Dispute Withdrawal***
 
+Requirements:
+
+- Available funds in User Account must be greater than Transaction Amount of dispute
+
 When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, decreasing available funds. These funds will not be back to available until resolving the dispute.
 
 
