@@ -77,7 +77,7 @@ Requirements:
 - The client from the Transactions History must be the same as the client who is creating a Dispute.
 - Client Account must not be frozen.
 
-#### ***Dispute Deposit***
+### ***Dispute Deposit***
 
 Requirements:
 
@@ -94,7 +94,7 @@ AccountBalance{
                 }
 ```
 
-#### ***Dispute Withdrawal***
+### ***Dispute Withdrawal***
 
 When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
 
