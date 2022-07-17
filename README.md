@@ -161,6 +161,8 @@ AccountBalance{
                 }
 ```
  
+## **Testing**
 
+For testing that the script works correctly, I have used diferent .csv files with diferent cases in test_data. There are multiple combinations on it, almost reaching as far as posible. the results have been what I expected.
 
 
