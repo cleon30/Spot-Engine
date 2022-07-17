@@ -124,7 +124,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                     if let Some(transaction_quantity) = x.amount{   // transaction_quantity = amount $ from the tx we consulted
                         if x.client == transaction.client       // the client that made the dispute must be the same with who made the transaction
                         && dispute_tickets.contains(&transaction.tx)==false // None-repeated disputed
-                        && x.r#type == "deposit"{   // Only has sense with deposit
+                        && (x.r#type == "deposit" || x.r#type == "withdrawal") {   // Only has sense with deposit & withdrawal
 
                             if let Some(spot_funds) = account{ // Account info to add $ to held
                                 if spot_funds.available>=transaction_quantity
@@ -140,24 +140,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                     }
                                 );
                                 }else{
-                                    println!("\n✘ Disputed from client {:?}  does not proceed. \n  Status: Account Frozen = {:?} | Amount of transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
-                                } 
-                            }
-                        }else if x.client == transaction.client 
-                        && dispute_tickets.contains(&transaction.tx)==false
-                        && x.r#type == "withdrawal"{                            // disputes for withdrawals
-                            if let Some(spot_funds) = account{                           // Account info to add $ to held
-                                if spot_funds.locked == false{
-                                 // frozen account
-                                dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
-                                users.insert(transaction.client,
-                                    AccountBalance{
-                                        available: spot_funds.available,
-                                        held: spot_funds.held + transaction_quantity,
-                                        total: spot_funds.held + spot_funds.available + transaction_quantity,           // Basically we are deleting funds from available
-                                        locked: spot_funds.locked,                        // to store them into held
-                                    }
-                                );
+                                    println!("\n✘ Disputed from client {:?}  does not proceed. \n  - Status: Account Frozen = {:?} | Amount of Disputed transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
                                 } 
                             }
                         }else{
@@ -207,7 +190,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                         if x.client == transaction.client   // the client that made the chargeback must be the same with who made the transaction
                         && dispute_tickets.contains(&transaction.tx)==true  // Disputed ticket is mandatory before resolve
                         && chargeback_tickets.contains(&transaction.tx)==false // Chargeback ticket Non-Repeated
-                        && x.r#type == "deposit"{   // chargebacks are only available for deposit disputes
+                        && (x.r#type == "deposit" || x.r#type == "withdrawal"){   // chargebacks are only available for deposit disputes
                             if let Some(spot_funds) = account{
                                 if transaction_quantity<=spot_funds.held
                                 && spot_funds.locked == false{ // account must not be frozen 

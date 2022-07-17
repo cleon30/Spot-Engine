@@ -18,13 +18,14 @@ Output file will be account.csv as default, in case you want other name please c
 1. [x] Deposits
 2. [x] Withdrawals
 3. [X] Disputes
-    1. [x] Deposit disputes
-    2. [X] Withdrawal disputes
+    1. [x] Deposits disputes
+    2. [X] Withdrawals disputes
 4. [x] Resolutions
-    1. [x] Deposit resolutions
-    2. [X] Withdrawal resolutions
+    1. [x] Deposits resolutions
+    2. [X] Withdrawals resolutions
 5. [x] Chargebacks
     1. [x] Deposit chargebacks
+    2. [x] Withdrawals chargebacks
 
 
 
@@ -98,16 +99,15 @@ AccountBalance{
 
 ### ***Dispute Withdrawal***
 
-When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
+When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, decreasing available funds. These funds will not be back to available until resolving the dispute.
 
-In this case I had the dilemma working with Dispute Withdrawal, because the idea of disputing a withdrawal is useful to prevent wrong withdrawals. So you make a dispute, you get the funds held but the funds are not available if resolve does not proceed.
 
 ```bash
 AccountBalance{
-                available: spot_funds.available,
+                available: spot_funds.available - transaction_quantity,
                 held: spot_funds.held + transaction_quantity,
-                total: spot_funds.held + spot_funds.available + transaction_quantity,        
-                locked: spot_funds.locked,                   
+                total: spot_funds.held + spot_funds.available ,          
+                locked: spot_funds.locked,                    
                 }
 ```
 
@@ -144,9 +144,9 @@ Requirements:
 - Dispute of Transaction ID must be in the Dispute Tickets that our Engine has made.
 - The client from the Transactions History must be the same as the client who is chargebacking.
 - Client Account must not be frozen.
-- Type of transaction in the tx History must be Deposit. 
+- Type of transaction in the tx History must be Deposit or Withdrawal. 
 
-When you are receiving a chargeback, it means that the funds on held and total must be decreased by the quantity of the deposit that the client user has made. The account will be instantly frozen.
+When you are receiving a chargeback, it means that the funds on held and total must be decreased by the quantity of the deposit or withdrawal that the client user has made. The account will be instantly frozen.
 
 ```bash
 AccountBalance{
