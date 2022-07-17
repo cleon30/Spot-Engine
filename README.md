@@ -30,6 +30,7 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
   1. `git clone https://github.com/cleon30/Spot-Engine.git`
   2. `cd Spot-Engine`
   3. `cargo run -- account.csv < transactions.csv `
+
 ## Logic 
 
 ### **Deposits Requirements**
@@ -38,14 +39,18 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 - Transaction Amount > 0.0001
 - Client Account must not be frozen
 
-### **Withdrawal Requirements**
+### **Withdrawal**
+
+Requirements:
 
 - Transaction ID must be unique
 - Transaction Amount > 0.0001 
 - Available funds in User Account must be greater than Transaction Amount 
 - Client Account must not be frozen
 
-### **Dispute Requirements**
+### **Dispute**
+
+Requirements:
 
 - Transaction ID must be in the Transactions History that our Engine has made.
 - Only 1 dispute per tx.
@@ -53,6 +58,8 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 - Client Account must not be frozen.
 
 #### ***Dispute Deposit***
+
+Requirements:
 
 - Available funds in User Account must be greater than Transaction Amount of dispute
     
@@ -79,7 +86,9 @@ When you are actually receiving a resolve transaction, is indicating that the di
  In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.
 
 
-### **Chargeback Requirements**
+### **Chargeback**
+
+Requirements:
 
 - Transaction ID must be in the Transactions History that our Engine has made.
 - Dispute of Transaction ID must be in the Dispute Tickets that our Engine has made.
