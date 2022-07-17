@@ -59,6 +59,15 @@ Requirements:
 - Available funds in User Account must be greater than Transaction Amount 
 - Client Account must not be frozen
 
+```bash
+AccountBalance{
+                available: spot_funds.available - amount,   
+                held: spot_funds.held,
+                total: spot_funds.total - amount, 
+                locked: spot_funds.locked,
+                }
+```
+
 ### **Dispute**
 
 Requirements:
@@ -76,11 +85,30 @@ Requirements:
     
 When you are actually creating a dispute of a Deposit transaction, your transactions amount dispute will decrease your available funds with that amount. Also, increasing the amount to held.
 
+```bash
+AccountBalance{
+                available: spot_funds.available - transaction_quantity,
+                held: spot_funds.held + transaction_quantity,
+                total: spot_funds.held + spot_funds.available ,          
+                locked: spot_funds.locked,                    
+                }
+```
+
 #### ***Dispute Withdrawal***
 
 When you are actually creating a dispute of a Withdrawal transaction, you will be adding the transaction amount to the held funds, also increasing total amount. These funds will not be on available until resolving the dispute.
 
 In this case I had the dilemma working with Dispute Withdrawal, because the idea of disputing a withdrawal is useful to prevent wrong withdrawals. So you make a dispute, you get the funds held but the funds are not available if resolve does not proceed.
+
+```bash
+AccountBalance{
+                available: spot_funds.available,
+                held: spot_funds.held + transaction_quantity,
+                total: spot_funds.held + spot_funds.available + transaction_quantity,        
+                locked: spot_funds.locked,                   
+                }
+```
+
 
 ### **Resolve**
 
@@ -96,6 +124,15 @@ When you are actually receiving a resolve transaction, is indicating that the di
  
  In this case I had the dilemma working with Resolving Deposit, because I was not sure if what is wanted is to reverse the transaction ID or just transfer the held funds to Available funds.
 
+```bash
+AccountBalance{
+                available: spot_funds.available +transaction_quantity,
+                held: spot_funds.held - transaction_quantity,    
+                total: spot_funds.total, 
+                locked: spot_funds.locked,
+                }
+```
+
 
 ### **Chargeback**
 
@@ -108,6 +145,15 @@ Requirements:
 - Type of transaction in the tx History must be Deposit. 
 
 When you are receiving a chargeback, it means that the funds on held and total must be decreased by the quantity of the deposit that the client user has made. The account will be instantly frozen.
+
+```bash
+AccountBalance{
+                available: spot_funds.available,
+                held: spot_funds.held - transaction_quantity,
+                total: spot_funds.total - transaction_quantity, 
+                locked: true,    
+                                        }
+```
  
 
 

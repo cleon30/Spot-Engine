@@ -136,7 +136,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         available: spot_funds.available - transaction_quantity,
                                         held: spot_funds.held + transaction_quantity,
                                         total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
-                                        locked:spot_funds.locked,                        // to store them into held
+                                        locked: spot_funds.locked,                        // to store them into held
                                     }
                                 );
                                 }else{
@@ -155,7 +155,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         available: spot_funds.available,
                                         held: spot_funds.held + transaction_quantity,
                                         total: spot_funds.held + spot_funds.available + transaction_quantity,           // Basically we are deleting funds from available
-                                        locked:spot_funds.locked,                        // to store them into held
+                                        locked: spot_funds.locked,                        // to store them into held
                                     }
                                 );
                                 } 
@@ -183,8 +183,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         AccountBalance{
                                             available: spot_funds.available +transaction_quantity,
                                             held: spot_funds.held - transaction_quantity,    //Reversing the dispute action(returning the funds to available)
-                                            total:spot_funds.total, 
-                                            locked:spot_funds.locked,
+                                            total: spot_funds.total, 
+                                            locked: spot_funds.locked,
                                         }
                                     );
                                 }else{
@@ -216,8 +216,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         AccountBalance{
                                             available: spot_funds.available,
                                             held: spot_funds.held - transaction_quantity,
-                                            total:spot_funds.total - transaction_quantity, 
-                                            locked:true,    
+                                            total: spot_funds.total - transaction_quantity, 
+                                            locked: true,    
                                         }
                                     );
                                 }else if spot_funds.locked == false      // account must not be frozen 
@@ -227,8 +227,8 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         AccountBalance{
                                             available: spot_funds.available ,
                                             held: spot_funds.held,
-                                            total:spot_funds.total, 
-                                            locked:true,            // frozen added
+                                            total: spot_funds.total, 
+                                            locked: true,            // frozen added
                                         }
                                     );
                                 }
