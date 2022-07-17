@@ -33,7 +33,9 @@ Given a .csv with transactions from different users of a platform, this Spot-Eng
 
 ## Logic 
 
-### **Deposits Requirements**
+### **Deposits**
+
+Requirements:
 
 - Transaction ID must be unique
 - Transaction Amount > 0.0001
