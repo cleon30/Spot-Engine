@@ -131,14 +131,14 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                 && spot_funds.locked == false{ // frozen account
                                  
                                 dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
-                                    users.insert(transaction.client,
-                                        AccountBalance{
-                                            available: spot_funds.available - transaction_quantity,
-                                            held: spot_funds.held + transaction_quantity,
-                                            total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
-                                            locked:spot_funds.locked,                        // to store them into held
-                                        }
-                                    );
+                                users.insert(transaction.client,
+                                    AccountBalance{
+                                        available: spot_funds.available - transaction_quantity,
+                                        held: spot_funds.held + transaction_quantity,
+                                        total: spot_funds.held + spot_funds.available ,           // Basically we are deleting funds from available
+                                        locked:spot_funds.locked,                        // to store them into held
+                                    }
+                                );
                                 }else{
                                     println!("\n✘ Disputed from client {:?}  does not proceed. \n  Status: Account Frozen = {:?} | Amount of transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
                                 } 
@@ -150,14 +150,14 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                 if spot_funds.locked == false{
                                  // frozen account
                                 dispute_tickets.push(transaction.tx);// Adding this dispute ticket to the history
-                                    users.insert(transaction.client,
-                                        AccountBalance{
-                                            available: spot_funds.available,
-                                            held: spot_funds.held + transaction_quantity,
-                                            total: spot_funds.held + spot_funds.available + transaction_quantity,           // Basically we are deleting funds from available
-                                            locked:spot_funds.locked,                        // to store them into held
-                                        }
-                                    );
+                                users.insert(transaction.client,
+                                    AccountBalance{
+                                        available: spot_funds.available,
+                                        held: spot_funds.held + transaction_quantity,
+                                        total: spot_funds.held + spot_funds.available + transaction_quantity,           // Basically we are deleting funds from available
+                                        locked:spot_funds.locked,                        // to store them into held
+                                    }
+                                );
                                 } 
                             }
                         }else{
