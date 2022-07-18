@@ -25,9 +25,6 @@ struct AccountBalance {
     total:f32,
     locked:bool,
 }
-pub struct Config {
-    pub transaction_file: String,
-}
 
 // Script of the Payment Engine //
 
