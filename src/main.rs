@@ -1,6 +1,7 @@
 // Created by 0xCleon // 
 
 // Dependencies & libraries //
+use std::fs::File;
 use std::error::Error;
 use std::{io, process};
 use std::collections::HashMap;
@@ -24,15 +25,20 @@ struct AccountBalance {
     total:f32,
     locked:bool,
 }
+pub struct Config {
+    pub transaction_file: String,
+}
 
 // Script of the Payment Engine //
 
 fn payments_engine() -> Result<(), Box<dyn Error>> {
+    let file_path = std::env::args().nth(1).expect("Unable to get args");
+    let file = File::open(file_path)?;
     let mut users = HashMap::<u16, AccountBalance>::new(); // hashmap of {Client : Balance Account}
     let mut read = ReaderBuilder::new()                     // input of std:in
                                         .trim(Trim::All)    //whitespaces
                                         .flexible(true)     //dimensional flexible 
-                                        .from_reader(io::stdin()); 
+                                        .from_reader(file); 
 
     let mut transaction_history = HashMap::<u32, Transaction>::new();  // Hashmap of {Transaction ID: Transaction Info}
     let mut dispute_tickets = Vec::new();     // Vector with the tx of the disputed tickets
@@ -60,7 +66,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                             ),
                         Some(spot_funds) =>{
                             if spot_funds.locked {      // Frozen Account ❄️
-                                println!("\n✘ Account {:?} has been frozen, deposits are currently not available.", transaction.client);              // Default Account
+                                eprintln!("\n✘ Account {:?} has been frozen, deposits are currently not available.", transaction.client);              // Default Account
                                 users.insert(transaction.client,
                                     AccountBalance{
                                         available: spot_funds.available ,
@@ -99,7 +105,7 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                 }
                             )
                         }else{
-                            println!("\n✘ Account {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
+                            eprintln!("\n✘ Account {:?} Withdrawal does not proceed.Account Frozen = {:?} | Amount to Withdraw: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, amount, spot_funds.available);
                             users.insert(transaction.client,
                                 AccountBalance{
                                 available: spot_funds.available,
@@ -140,15 +146,15 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                         }
                                     );
                                     }else{
-                                        println!("\n✘ Disputed from client {:?}  does not proceed. \n  - Status: Account Frozen = {:?} | Amount of Disputed transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
+                                        eprintln!("\n✘ Disputed from client {:?}  does not proceed. \n  - Status: Account Frozen = {:?} | Amount of Disputed transaction: {:?} vs Amount Available: {:?}", transaction.client, spot_funds.locked, transaction_quantity, spot_funds.available);
                                     } 
                                 }
                             }else{
-                                println!("\n✘ Disputed from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket already exists? = {:?} | Transaction Type : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), x.r#type);
+                                eprintln!("\n✘ Disputed from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket already exists? = {:?} | Transaction Type : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), x.r#type);
                             }
                         }
                     }else{
-                        println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
+                        eprintln!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
                     }
                 // Fourth type of transaction: Resolve //
                 }else if transaction.r#type == "resolve"
@@ -171,15 +177,15 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             }
                                         );
                                     }else{
-                                        println!("\n✘ Account {} is frozen, resolve is not available", x.client);
+                                        eprintln!("\n✘ Account {} is frozen, resolve is not available", x.client);
                                     }
                                 }
                             }else{
-                                println!("\n✘ Resolve from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket previously made? = {:?} | Resolved ticked already exist? : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), resolved_tickets.contains(&transaction.tx));
+                                eprintln!("\n✘ Resolve from Client {:?} does not meet requirements,please check your dispute status.\nClient is the same in tx and dispute? =  {:?} | Dispute ticket previously made? = {:?} | Resolved ticked already exist? : {:?}", transaction.client, x.client==transaction.client, dispute_tickets.contains(&transaction.tx), resolved_tickets.contains(&transaction.tx));
                             }
                         }
                     }else{
-                        println!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
+                        eprintln!("\n✘ Seems like your tx {:?} does not exist in tx history", transaction.tx);
                     }
                     // Last Type of Transaction: chargeback //
                 }else if transaction.r#type == "chargeback" 
@@ -204,26 +210,26 @@ fn payments_engine() -> Result<(), Box<dyn Error>> {
                                             }
                                         );
                                     }else{
-                                        println!("\n✘ Your Account is frozen({:?}) or your Transaction Quantity({:?}) is greater than your Held funds({:?})", spot_funds.locked, transaction_quantity, spot_funds.held);
+                                        eprintln!("\n✘ Your Account is frozen({:?}) or your Transaction Quantity({:?}) is greater than your Held funds({:?})", spot_funds.locked, transaction_quantity, spot_funds.held);
                                     }
                                 }
                             }else{
-                                println!("\n✘ Requirements not matched for proceding chargeback:{:?}", transaction.tx);
+                                eprintln!("\n✘ Requirements not matched for proceding chargeback:{:?}", transaction.tx);
                             }
                         }else{
-                            println!("\n✘ None value found for transaction consulted:{:?}", x.amount);
+                            eprintln!("\n✘ None value found for transaction consulted:{:?}", x.amount);
                         }
                     }else{
-                        println!("\n✘ Transaction {:?} has not found", transaction.tx);
+                        eprintln!("\n✘ Transaction {:?} has not found", transaction.tx);
                     }
                 } else{
-                    println!("\n✘ Transaction Instruction {:?} does not exist", transaction.r#type);
+                    eprintln!("\n✘ Transaction Instruction {:?} does not exist", transaction.r#type);
                     }
                 },
         }
     };
     // Write OUTPUT file ! // 
-    let mut writer = Writer::from_path("accounts.csv")?; // the result will be saved as accounts.csv
+    let mut writer = Writer::from_writer(io::stdout()); // the result will be saved as accounts.csv
     writer.write_record(&["client", "available", "held", "total", "locked"])?;
     for (user, AccountBalance) in users { 
         writer.write_byte_record(&ByteRecord::from(
